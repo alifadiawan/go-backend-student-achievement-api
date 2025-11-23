@@ -51,7 +51,7 @@ func ConnectToPostgres(app * fiber.App) error {
 	}
 
 	DatabaseQuery = db
-	fmt.Println("✅ Connected to Postgres!")
+	fmt.Println("Connected to Postgres")
 	return nil
 
 }
