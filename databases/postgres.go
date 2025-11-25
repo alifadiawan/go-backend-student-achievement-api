@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/gofiber/fiber/v2"
+	
 	"github.com/joho/godotenv"
+	 _ "github.com/lib/pq"
 )
 
 var (
@@ -32,8 +33,7 @@ func init() {
 	PASSWORD = os.Getenv("DB_PASSWORD")
 }
 
-
-func ConnectToPostgres(app * fiber.App) error {
+func ConnectToPostgres() (*sql.DB, error) {
 
 	psqlInfo := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
@@ -42,16 +42,18 @@ func ConnectToPostgres(app * fiber.App) error {
 
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// cek koneksi
 	if err := db.Ping(); err != nil {
-		return err
+		return nil, err
 	}
 
-	DatabaseQuery = db
-	fmt.Println("Connected to Postgres")
-	return nil
+	db.SetMaxOpenConns(20)
+	db.SetMaxIdleConns(10)
+	fmt.Println("Postgres Connected ....")
 
+	DatabaseQuery = db
+	return db, err
 }

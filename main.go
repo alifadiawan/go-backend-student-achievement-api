@@ -15,7 +15,15 @@ func main() {
 	routes.AuthRoutes(app)
 
 	// databases
-	databases.ConnectToPostgres(app)
+	_, err := databases.ConnectToPostgres()
+	if err != nil {
+		log.Fatal("Postgres tidak Connect: ", err)
+	}
+
+	_, _, _, err = databases.ConnectToMongo()
+	if err != nil {
+		log.Fatal("MongoDB Tidak Connect:", err)
+	}
 
 	log.Fatal(app.Listen(":3000"))
 
