@@ -13,9 +13,10 @@ type User struct {
 	PasswordHash string    `json:"password_hash"`
 	FullName     string    `json:"full_name"`
 
-	RoleID   	uuid.UUID `json:"role_id"`
-	IsActive 	bool      `json:"is_active"`
+	RoleID   uuid.UUID `json:"role_id"`
+	RoleName string    `json:role_name`
+	IsActive bool      `json:"is_active"`
 
-	CreatedAt 	time.Time `json:"created_at"`
-	UpdatedAt 	time.Time `json:"updated_at"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }

@@ -46,6 +46,8 @@ func LoginService(c *fiber.Ctx) error {
 		Email: User.Email,
 		Username: User.Username,
 		FullName: User.FullName,
+		RoleID: User.RoleID.String(),
+		RoleName: User.RoleName,
 		Token: token,
 	}
 

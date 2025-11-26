@@ -19,11 +19,12 @@ func Authenticate(email string, password string) (*postgres.User, error) {
 	var User postgres.User
 
 	err := databases.DatabaseQuery.QueryRow(`
-			SELECT id, username, email, password_hash
-			FROM users
-			WHERE email = $1
+			SELECT u.id, u.username, u.email, u.full_name, u.password_hash, u.role_id, r.name  
+			FROM users as u
+			JOIN roles as r on u.role_id = r.id
+			WHERE u.email = $1
 		`, email).Scan(
-		&User.ID, &User.Username, &User.Email, &User.PasswordHash,
+		&User.ID, &User.Username, &User.Email, &User.FullName, &User.PasswordHash, &User.RoleID, &User.RoleName,
 	)
 
 	if err == sql.ErrNoRows {
