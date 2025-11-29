@@ -5,6 +5,7 @@ import (
 	repositories "backendUAS/app/repositories/postgres"
 	"backendUAS/utils"
 
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -51,8 +52,8 @@ func LoginService(c *fiber.Ctx) error {
 	}
 
 	loginResponse := models.LoginResponse{
-		ID: User.ID.String(),
-		Email: User.Email,
+		ID:       User.ID.String(),
+		Email:    User.Email,
 		Username: User.Username,
 		FullName: User.FullName,
 		RoleName: User.RoleName,
@@ -70,3 +71,31 @@ func LoginService(c *fiber.Ctx) error {
 	return c.JSON(response)
 
 }
+
+func Profile(c *fiber.Ctx) error {
+	UserIDJWT := c.Locals("user_id")
+	UserID := UserIDJWT.(string)
+
+	// fmt.Println(UserID)
+
+	if UserID == "" {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "id tidak ditemukan",
+		})
+	}
+
+	var UserProfile *models.User
+
+	UserProfile, err := repositories.GetProfile(UserID)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"status": "error",
+			"message": err,
+		})
+	}
+
+	return c.JSON(UserProfile)
+
+}
+
+// func logout() error

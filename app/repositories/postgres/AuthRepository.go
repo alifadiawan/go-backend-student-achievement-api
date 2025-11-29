@@ -14,6 +14,31 @@ func CheckPassword(raw string, hashed string) bool {
 	return err == nil
 }
 
+func GetProfile(userId string) (*postgres.User, error) {
+
+	var User postgres.User
+
+	err := databases.DatabaseQuery.QueryRow(`
+		SELECT 
+			u.id, u.username, u.email, u.full_name, u.password_hash, u.role_id, r.name  
+		FROM 
+			users as u
+		JOIN 
+			roles as r on u.role_id = r.id
+		WHERE 
+			u.id = $1 
+	`, userId).Scan(
+		&User.ID, &User.Username, &User.Email, &User.FullName, &User.PasswordHash, &User.RoleID, &User.RoleName,
+	)
+
+	if err == sql.ErrNoRows {
+		return nil, errors.New("tidak ditemukan")
+	}
+
+	return &User, err
+
+}
+
 func Authenticate(email string, password string) (*postgres.User, error) {
 
 	var User postgres.User

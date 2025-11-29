@@ -2,6 +2,7 @@ package routes
 
 import (
 	services "backendUAS/app/services/postgres"
+	"backendUAS/middlewares"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -14,6 +15,7 @@ func AuthRoutes(app *fiber.App) {
 
     auth := v1.Group("/auth")
 	auth.Post("/login", services.LoginService)
+	auth.Get("/profile", middlewares.AuthRequired() ,services.Profile)
 	
 
 }
