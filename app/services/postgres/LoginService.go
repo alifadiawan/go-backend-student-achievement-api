@@ -37,23 +37,36 @@ func LoginService(c *fiber.Ctx) error {
 	token, err := utils.CreateToken(*User)
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{
-			"message" : "tidak bisa generate token",
-			"error" : err.Error(),
+			"message": "tidak bisa generate token",
+			"error":   err.Error(),
 		})
 	}
 
-	response := models.LoginResponse{
+	refreshToken, err := utils.RefreshToken(*User)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "tidak bisa generate token refresh",
+			"status":  err.Error(),
+		})
+	}
+
+	loginResponse := models.LoginResponse{
+		ID: User.ID.String(),
 		Email: User.Email,
 		Username: User.Username,
 		FullName: User.FullName,
-		RoleID: User.RoleID.String(),
 		RoleName: User.RoleName,
-		Token: token,
 	}
 
-	return c.JSON(fiber.Map{
-		"success":  true,
-		"data" : response,
-	})
+	response := models.ApiResponse{
+		Status: "success",
+		Data: fiber.Map{
+			"token":        token,
+			"tokenRefresh": refreshToken,
+			"user":         loginResponse,
+		},
+	}
+
+	return c.JSON(response)
 
 }

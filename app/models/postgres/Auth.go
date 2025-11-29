@@ -5,18 +5,21 @@ import (
 )
 
 type LoginRequest struct {
-	Email    string `json:username`
-	Password string `json:password`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type LoginResponse struct {
-	Email    string `json:email`
-	Username string `json:username`
-	FullName string `json:full_name`
-	RoleID   string `json:role_id`
-	RoleName   string `json:role_name`
-	IsActive bool   `json:is_active`
-	Token    string `json:token`
+	ID       string `json:"id"`
+	Email    string `json:"email"`
+	Username string `json:"username"`
+	FullName string `json:"full_name"`
+	RoleName string `json:"role_name"`
+}
+
+type ApiResponse struct {
+	Status string      `json:"status"`
+	Data   interface{} `json:"data"`
 }
 
 type JWTClaims struct {
