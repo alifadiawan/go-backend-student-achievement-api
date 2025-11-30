@@ -16,6 +16,7 @@ func AuthRoutes(app *fiber.App) {
     auth := v1.Group("/auth")
 	auth.Post("/login", services.LoginService)
 	auth.Get("/profile", middlewares.AuthRequired() ,services.Profile)
+	auth.Get("/logout", middlewares.AuthRequired() ,services.LogoutService)
 	
 
 }

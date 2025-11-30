@@ -5,7 +5,6 @@ import (
 	repositories "backendUAS/app/repositories/postgres"
 	"backendUAS/utils"
 
-
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -89,7 +88,7 @@ func Profile(c *fiber.Ctx) error {
 	UserProfile, err := repositories.GetProfile(UserID)
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{
-			"status": "error",
+			"status":  "error",
 			"message": err,
 		})
 	}
@@ -98,4 +97,8 @@ func Profile(c *fiber.Ctx) error {
 
 }
 
-// func logout() error
+func LogoutService(c *fiber.Ctx) error {
+	return c.JSON(fiber.Map{
+		"message": "logout successful",
+	})
+}
