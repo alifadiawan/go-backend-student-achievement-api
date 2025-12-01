@@ -14,7 +14,7 @@ func CreateToken(user postgres.User) (string, error) {
 	claims := postgres.JWTClaims{
 		UserID:   user.ID.String(),
 		Username: user.Username,
-		Role:     user.RoleID.String(),
+		Role:     user.RoleName,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)), // 1 jam saja
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

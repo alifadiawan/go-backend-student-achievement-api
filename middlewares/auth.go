@@ -29,7 +29,7 @@ func AuthRequired() fiber.Handler {
 				"error": "Token tidak valid atau expired",
 			})
 		}
-
+		
 		c.Locals("user_id", claims.UserID)
 		c.Locals("username", claims.Username)
 		c.Locals("role", claims.Role)
