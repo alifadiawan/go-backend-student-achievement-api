@@ -20,7 +20,7 @@ func GetProfile(userId string) (*postgres.User, error) {
 
 	err := databases.DatabaseQuery.QueryRow(`
 		SELECT 
-			u.id, u.username, u.email, u.full_name, u.password_hash, u.role_id, r.name  
+			u.id, u.username, u.email, u.full_name, u.role_id, r.name  
 		FROM 
 			users as u
 		JOIN 
@@ -28,7 +28,7 @@ func GetProfile(userId string) (*postgres.User, error) {
 		WHERE 
 			u.id = $1 
 	`, userId).Scan(
-		&User.ID, &User.Username, &User.Email, &User.FullName, &User.PasswordHash, &User.RoleID, &User.RoleName,
+		&User.ID, &User.Username, &User.Email, &User.FullName, &User.RoleID, &User.RoleName,
 	)
 
 	if err == sql.ErrNoRows {

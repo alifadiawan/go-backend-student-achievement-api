@@ -13,6 +13,7 @@ func main() {
 
 	// routes
 	routes.AuthRoutes(app)
+	routes.UserRoutes(app)
 
 	// databases
 	_, err := databases.ConnectToPostgres()
