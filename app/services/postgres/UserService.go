@@ -48,7 +48,7 @@ func GetUsersByIdService (c *fiber.Ctx) error {
 
 
 func StoreUserService(c *fiber.Ctx) error {
-	var UserRequest models.UserRequest
+	var UserRequest models.UpdateUser
 	
 	err := c.BodyParser(&UserRequest)
 	if err != nil {
@@ -75,8 +75,8 @@ func StoreUserService(c *fiber.Ctx) error {
 
 
 func UpdateUserService(c *fiber.Ctx) error {
-	userid := c.Locals("user_id").(string) 
-	var userRequest models.UserRequest
+	userid := c.Params("user_id")
+	var userRequest models.UpdateUser
 
 	err := c.BodyParser(&userRequest)
 	if err != nil {
@@ -97,12 +97,45 @@ func UpdateUserService(c *fiber.Ctx) error {
 	if !hasil {
 		return c.Status(404).JSON(fiber.Map{
 			"message": "user tidak ditemukan",
+		})
+	}
+
+	return c.Status(200).JSON(fiber.Map{
+		"message": "berhasil mengupdate user",
+		"data": hasil,
+	})
+
+} 
+
+
+func UpdateUserRoleService(c *fiber.Ctx) error {
+	userid := c.Params("user_id") 
+	var userRequest models.UpdateUserRole
+
+	err := c.BodyParser(&userRequest)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "body tidak valid",
 			"error": err.Error(),
 		})
 	}
 
-	return c.Status(400).JSON(fiber.Map{
-		"message": "berhasil mengupdate user",
+	hasil, err := repo.UpdateUserRoleRepository(userid, userRequest.RoleName)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "tidak dapat mengupdate role user",
+			"error" : err.Error(),
+		})
+	}
+
+	if !hasil {
+		return c.Status(404).JSON(fiber.Map{
+			"message": "user tidak ditemukan",
+		})
+	}
+
+	return c.Status(200).JSON(fiber.Map{
+		"message": "berhasil mengupdate role user",
 		"data": hasil,
 	})
 

@@ -91,7 +91,7 @@ func GetUsersByIdRepository(UserID string) (models.User, error) {
 
 }
 
-func StoreUserRepository(request models.UserRequest) (*models.User, error) {
+func StoreUserRepository(request models.UpdateUser) (*models.User, error) {
 	var User models.User
 	var roleID string
 
@@ -108,6 +108,9 @@ func StoreUserRepository(request models.UserRequest) (*models.User, error) {
 		FROM roles
 		WHERE name = 'mahasiswa'
 	`).Scan(&roleID)
+	if err != nil {
+		return nil, err
+	}
 
 	_, err = databases.DatabaseQuery.Exec(`
 		INSERT INTO users (username, email, full_name, password_hash, role_id)
@@ -128,13 +131,13 @@ func StoreUserRepository(request models.UserRequest) (*models.User, error) {
 
 }
 
-func UpdateUserRepository(userid string, userReq models.UserRequest) (bool, error) {
+func UpdateUserRepository(userid string, userReq models.UpdateUser) (bool, error) {
 
 	result, err := databases.DatabaseQuery.Exec(`
 	UPDATE users
-		SET username = $1,
-		email = $2,
-		full_name = $3,
+	SET username = COALESCE($1, username),
+		email = COALESCE($2, email),
+		full_name = COALESCE($3, full_name),
 		updated_at = NOW()
 	WHERE id = $4
 	`,
@@ -151,12 +154,40 @@ func UpdateUserRepository(userid string, userReq models.UserRequest) (bool, erro
 	// cek apakah ada baris yang terupdate
 	hasil, err := result.RowsAffected()
 	if err != nil {
-		return false, nil
+		return false, err
 	}
 	if hasil == 0 {
 		return false, err
 	}
 
-	return true, nil
+	return true, err
+
+}
+
+func UpdateUserRoleRepository(userid string, roleName string) (bool, error) {
+
+		result, err := databases.DatabaseQuery.Exec(`
+		UPDATE users AS u
+		SET role_id = r.id,
+		    updated_at = NOW()
+		FROM roles AS r
+		WHERE u.id = '` + userid + `'
+		  AND r.name = '` + roleName + `'
+	`)
+
+	if err != nil {
+		return false, err
+	}
+
+	rowsEffected, err := result.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	if rowsEffected == 0 {
+		return false, err
+	}
+
+	return true, err
 
 }

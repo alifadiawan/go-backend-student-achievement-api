@@ -22,10 +22,16 @@ type User struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type UserRequest struct {
-	ID  string `json:"id"`
-	Username  string `json:"username"`
-	Email     string `json:"email"`
-	FullName  string `json:"full_name"`
+type UpdateUser struct {
+	ID        *string `json:"id"`
+	Username  *string `json:"username"`
+	Email     *string `json:"email"`
+	FullName  *string `json:"full_name"`
+	UpdatedAt *string `json"updated_at"`
+}
+
+type UpdateUserRole struct {
+	ID        string `json:"id"`
+	RoleName  string `json"role_name"`
 	UpdatedAt string `json"updated_at"`
 }
