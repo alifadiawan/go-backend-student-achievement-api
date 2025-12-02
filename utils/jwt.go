@@ -7,14 +7,14 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var secretString = []byte("string rahasia")
+var secretString = []byte("stringrahasia")
 
-func CreateToken(user postgres.User) (string, error) {
+func CreateToken(user postgres.LoginResponse) (string, error) {
 
 	claims := postgres.JWTClaims{
-		UserID:   user.ID.String(),
+		UserID:   user.ID,
 		Username: user.Username,
-		Role:     user.RoleName,
+		Role:     user.Role,   
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)), // 1 jam saja
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -37,7 +37,7 @@ func RefreshToken(user postgres.User) (string, error) {
 	claims := postgres.JWTClaims{
 		UserID:   user.ID.String(),
 		Username: user.Username,
-		Role:     user.RoleID.String(),
+		Role:     user.RoleName,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

@@ -14,5 +14,7 @@ func UserRoutes(app *fiber.App) {
 
 	users := v1.Group("/users", middleware.AuthRequired(), middleware.OnlyAdmin)
 	users.Get("/", middleware.OnlyAdmin, services.GetAllUserService)
+	users.Get("/:id", middleware.OnlyAdmin, services.GetUsersByIdService)
+	users.Post("/", middleware.OnlyAdmin, services.StoreUserService)
 
 }

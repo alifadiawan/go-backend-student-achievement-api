@@ -10,11 +10,12 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	ID       string `json:"id"`
-	Email    string `json:"email"`
-	Username string `json:"username"`
-	FullName string `json:"full_name"`
-	RoleName string `json:"role_name"`
+	ID          string   `json:"id"`
+	Email       string   `json:"email"`
+	Username    string   `json:"username"`
+	FullName    string   `json:"full_name"`
+	Role        string   `json:"role"`
+	Permissions []string `json:"permissions"`
 }
 
 type ApiResponse struct {

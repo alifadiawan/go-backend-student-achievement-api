@@ -42,7 +42,7 @@ func LoginService(c *fiber.Ctx) error {
 		})
 	}
 
-	refreshToken, err := utils.RefreshToken(*User)
+	refreshToken, err := utils.RefreshToken(models.User{})
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{
 			"message": "tidak bisa generate token refresh",
@@ -51,11 +51,12 @@ func LoginService(c *fiber.Ctx) error {
 	}
 
 	loginResponse := models.LoginResponse{
-		ID:       User.ID.String(),
-		Email:    User.Email,
-		Username: User.Username,
-		FullName: User.FullName,
-		RoleName: User.RoleName,
+		ID:          User.ID,
+		Email:       User.Email,
+		Username:    User.Username,
+		FullName:    User.FullName,
+		Role:        User.Role,
+		Permissions: User.Permissions,
 	}
 
 	response := models.ApiResponse{

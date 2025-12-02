@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -8,10 +9,11 @@ import (
 func OnlyAdmin(c *fiber.Ctx) error {
 
 	role := c.Locals("role")
-
+	fmt.Println(role)
+	
 	if role == nil || role != "admin" {
 		return c.Status(403).JSON(fiber.Map{
-			"message" : "endpoint forbidden",
+			"message" : "endpoint forbidden / tidak boleh ya",
 		})
 	}
 
