@@ -72,3 +72,38 @@ func StoreUserService(c *fiber.Ctx) error {
 	})
 	
 }
+
+
+func UpdateUserService(c *fiber.Ctx) error {
+	userid := c.Locals("user_id").(string) 
+	var userRequest models.UserRequest
+
+	err := c.BodyParser(&userRequest)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "body tidak valid",
+			"error": err.Error(),
+		})
+	}
+
+	hasil, err := repo.UpdateUserRepository(userid, userRequest)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "tidak dapat mengupdate user",
+			"error" : err.Error(),
+		})
+	}
+
+	if !hasil {
+		return c.Status(404).JSON(fiber.Map{
+			"message": "user tidak ditemukan",
+			"error": err.Error(),
+		})
+	}
+
+	return c.Status(400).JSON(fiber.Map{
+		"message": "berhasil mengupdate user",
+		"data": hasil,
+	})
+
+} 

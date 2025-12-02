@@ -29,7 +29,7 @@ func GetAllUserRepository() ([]models.User, error) {
 
 	var Users []models.User
 
-	for Query.Next(){
+	for Query.Next() {
 		var item models.User
 
 		foreach := Query.Scan(
@@ -54,10 +54,10 @@ func GetAllUserRepository() ([]models.User, error) {
 
 }
 
-func GetUsersByIdRepository (UserID string) (models.User, error) {
+func GetUsersByIdRepository(UserID string) (models.User, error) {
 
 	var User models.User
-	
+
 	err := databases.DatabaseQuery.QueryRow(`
 		SELECT 
 			u.id, 
@@ -73,58 +73,90 @@ func GetUsersByIdRepository (UserID string) (models.User, error) {
 		JOIN roles as r on r.id = u.role_id
 		WHERE u.id = $1
 		`, UserID).Scan(
-			&User.ID,
-			&User.Username,
-			&User.Email,
-			&User.FullName,
-			&User.RoleID,
-			&User.RoleName,
-			&User.IsActive,
-			&User.CreatedAt,
-			&User.UpdatedAt,	
-		)
-	 if err != nil {
-	        return models.User{}, err
-	 }
-	
+		&User.ID,
+		&User.Username,
+		&User.Email,
+		&User.FullName,
+		&User.RoleID,
+		&User.RoleName,
+		&User.IsActive,
+		&User.CreatedAt,
+		&User.UpdatedAt,
+	)
+	if err != nil {
+		return models.User{}, err
+	}
+
 	return User, nil
 
 }
 
-
-func StoreUserRepository(request models.UserRequest)(*models.User, error){
+func StoreUserRepository(request models.UserRequest) (*models.User, error) {
 	var User models.User
 	var roleID string
-	
+
 	defaultPassword := "password"
-	
+
 	passwordHash, err := utils.HashPassword(defaultPassword)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// cek role di table
 	err = databases.DatabaseQuery.QueryRow(`
 		SELECT id
 		FROM roles
 		WHERE name = 'mahasiswa'
 	`).Scan(&roleID)
-	
+
 	_, err = databases.DatabaseQuery.Exec(`
 		INSERT INTO users (username, email, full_name, password_hash, role_id)
 		VALUES ($1, $2, $3, $4, $5)
-	`, 
+	`,
 		request.Username,
 		request.Email,
 		request.FullName,
 		passwordHash,
 		roleID,
 	)
-	
+
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return &User, err
-	
+
+}
+
+func UpdateUserRepository(userid string, userReq models.UserRequest) (bool, error) {
+
+	result, err := databases.DatabaseQuery.Exec(`
+	UPDATE users
+		SET username = $1,
+		email = $2,
+		full_name = $3,
+		updated_at = NOW()
+	WHERE id = $4
+	`,
+		userReq.Username,
+		userReq.Email,
+		userReq.FullName,
+		userid,
+	)
+
+	if err != nil {
+		return false, nil
+	}
+
+	// cek apakah ada baris yang terupdate
+	hasil, err := result.RowsAffected()
+	if err != nil {
+		return false, nil
+	}
+	if hasil == 0 {
+		return false, err
+	}
+
+	return true, nil
+
 }
