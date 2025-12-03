@@ -166,7 +166,7 @@ func UpdateUserRepository(userid string, userReq models.UpdateUser) (bool, error
 
 func UpdateUserRoleRepository(userid string, roleName string) (bool, error) {
 
-		result, err := databases.DatabaseQuery.Exec(`
+	result, err := databases.DatabaseQuery.Exec(`
 		UPDATE users AS u
 		SET role_id = r.id,
 		    updated_at = NOW()
@@ -186,6 +186,31 @@ func UpdateUserRoleRepository(userid string, roleName string) (bool, error) {
 
 	if rowsEffected == 0 {
 		return false, err
+	}
+
+	return true, err
+
+}
+
+func DeleteUserRepository(userid string) (bool, error) {
+
+	result, err := databases.DatabaseQuery.Exec(`
+		UPDATE users AS u
+		SET is_active = false
+		WHERE id = $1 AND is_active = true
+	`, userid)
+
+	if err != nil {
+		return false, err
+	}
+
+	rowsEffected, err := result.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	if rowsEffected == 0 {
+		return false, nil
 	}
 
 	return true, err

@@ -18,5 +18,6 @@ func UserRoutes(app *fiber.App) {
 	users.Post("/", middleware.OnlyAdmin, services.StoreUserService)
 	users.Put("/:user_id", middleware.OnlyAdmin, services.UpdateUserService)
 	users.Put("/role/:user_id", middleware.OnlyAdmin, services.UpdateUserRoleService)
+	users.Delete("/:id", middleware.OnlyAdmin, services.DeleteUserService)
 
 }
