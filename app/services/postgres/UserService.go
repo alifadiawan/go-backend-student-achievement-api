@@ -31,6 +31,14 @@ func GetUsersByIdService(c *fiber.Ctx) error {
 
 	var User models.User
 
+	UserIdViaJWT := c.Locals("user_id")
+	role := c.Locals("role")
+	if role != "admin" && UserID != UserIdViaJWT {
+		return c.Status(403).JSON(fiber.Map{
+			"message": "maaf, hanya admin yang boleh yaw",
+		})
+	}
+
 	User, err := repo.GetUsersByIdRepository(UserID)
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{

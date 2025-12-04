@@ -4,6 +4,7 @@ import (
 	models "backendUAS/app/models/postgres"
 	repositories "backendUAS/app/repositories/postgres"
 	"backendUAS/utils"
+	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -13,6 +14,9 @@ func LoginService(c *fiber.Ctx) error {
 	var Request models.LoginRequest
 
 	err := c.BodyParser(&Request)
+
+	fmt.Println(c.BodyParser(&Request))
+
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{
 			"message": "body tidak valid",
