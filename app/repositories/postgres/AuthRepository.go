@@ -42,11 +42,20 @@ func GetProfile(userId string) (*models.User, error) {
 func Authenticate(email string, password string) (*models.LoginResponse, error) {
 	query := `
         SELECT 
-            u.id, u.username, u.email, u.full_name, u.password_hash, r.name AS role_name, p.name AS permission_name
-        FROM users AS u
-        JOIN roles AS r ON u.role_id = r.id
-        JOIN role_permissions AS rp ON r.id = rp.role_id
-        JOIN permissions AS p ON rp.permission_id = p.id
+			u.id,
+			st.id AS student_id,
+			st.student_id AS nim,
+			u.username,
+			u.email,
+			u.full_name,
+			u.password_hash,
+			r.name AS role_name,
+			p.name AS permission_name
+		FROM users AS u
+		JOIN roles AS r ON u.role_id = r.id
+		JOIN role_permissions AS rp ON r.id = rp.role_id
+		JOIN permissions AS p ON rp.permission_id = p.id
+		LEFT JOIN students AS st ON u.id = st.user_id
         WHERE u.email = $1
    `
 
@@ -59,27 +68,44 @@ func Authenticate(email string, password string) (*models.LoginResponse, error) 
 	var resp models.LoginResponse
 	permMap := make(map[string]bool)
 	var passwordHash string
-    var firstRow = true
-
+	var firstRow = true
 
 	for rows.Next() {
 		var id, username, emailDB, fullName, roleName, permName string
+		var studentID, nim sql.NullString
 
-		err := rows.Scan(&id, &username, &emailDB, &fullName, &passwordHash,&roleName, &permName)
+		err := rows.Scan(
+			&id,
+			&studentID,
+			&nim,
+			&username,
+			&emailDB,
+			&fullName,
+			&passwordHash,
+			&roleName,
+			&permName,
+		)
 		if err != nil {
 			return nil, err
 		}
 
 		if firstRow {
 			resp.ID = id
-			resp.Username = username
 			resp.Email = emailDB
+			resp.Username = username
 			resp.FullName = fullName
 			resp.Role = roleName
+
+			if studentID.Valid {
+				resp.StudentID = &studentID.String
+			}
+			if nim.Valid {
+				resp.NIM = &nim.String
+			}
+
 			firstRow = false
 		}
 
-		permMap[permName] = true
 	}
 
 	if resp.ID == "" {

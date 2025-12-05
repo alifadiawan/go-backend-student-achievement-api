@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 var databaseName = os.Getenv("DB_NAME_MONGO")
@@ -16,7 +17,7 @@ func GetAllAchievementByIDRepo(userid string) ([]models.Achievement, error) {
 
 	collection := databases.MongoClient.Database(databaseName).Collection("student_achievement")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10 *time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	filter := bson.M{}
@@ -34,4 +35,20 @@ func GetAllAchievementByIDRepo(userid string) ([]models.Achievement, error) {
 
 	return AllAchievement, err
 
+}
+
+func AddAchievementRepositoryMongo(achievement models.Achievement) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	achievement.CreatedAt = time.Now()
+	achievement.UpdatedAt = time.Now()
+
+	result, err := databases.MongoClient.Database("student_achievement").
+		Collection("achievements").InsertOne(ctx, achievement)
+	if err != nil {
+		return "", err
+	}
+
+	return result.InsertedID.(primitive.ObjectID).Hex(), nil
 }

@@ -12,6 +12,8 @@ type LoginRequest struct {
 type LoginResponse struct {
 	ID          string   `json:"id"`
 	Email       string   `json:"email"`
+	StudentID   *string   `json:"-"`
+	NIM         *string   `json:"-"`
 	Username    string   `json:"username"`
 	FullName    string   `json:"full_name"`
 	Role        string   `json:"role"`
@@ -24,8 +26,10 @@ type ApiResponse struct {
 }
 
 type JWTClaims struct {
-	UserID   string `json:"user_id"`
-	Username string `json:"username"`
-	Role     string `json:"role"`
+	UserID    string `json:"user_id"`
+	Username  string `json:"username"`
+	Role      string `json:"role"`
+	StudentID string `json:"student_id"`
+	NIM       string `json:"nim"`
 	jwt.RegisteredClaims
 }

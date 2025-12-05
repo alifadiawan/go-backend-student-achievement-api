@@ -13,5 +13,8 @@ func AchievementRoutes(app *fiber.App) {
 
 	users := v1.Group("/achievement", middleware.AuthRequired())
 	users.Get("/", services.GetAllAchievementService)
+	users.Get("/:student_id", services.GetAchievementByIDService)
+	users.Post("/", services.AddAchievementService)
+	users.Delete("/:achievement_references_id", services.DeleteAchievementService)
 
 }
