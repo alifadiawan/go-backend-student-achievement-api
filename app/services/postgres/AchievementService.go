@@ -15,18 +15,25 @@ func GetAllAchievementService(c *fiber.Ctx) error {
 	var err error
 
 	role := c.Locals("role")
-	if role != "admin" {
-		return c.Status(403).JSON(fiber.Map{
-			"message": "maaf, hanya admin yang boleh yaw",
-		})
+	if role == "admin" {
+		result, err = repo.GetAllAchievementRepo()
+		if err != nil {
+			return c.Status(400).JSON(fiber.Map{
+				"error":   err.Error(),
+				"message": "gagal mengambil data prestasi mahasiswa",
+			})
+		}
 	}
 
-	result, err = repo.GetAllAchievementRepo()
-	if err != nil {
-		return c.Status(400).JSON(fiber.Map{
-			"error":   err.Error(),
-			"message": "gagal mengambil data prestasi mahasiswa",
-		})
+	studentID := c.Locals("student_id").(string)
+	if role == "mahasiswa" {
+		result, err = repo.GetAllAchievementByStudentIDRepo(studentID)
+		if err != nil {
+			return c.Status(400).JSON(fiber.Map{
+				"error":   err.Error(),
+				"message": "gagal mengambil data prestasi mahasiswa",
+			})
+		}
 	}
 
 	return c.Status(200).JSON(fiber.Map{
@@ -35,14 +42,14 @@ func GetAllAchievementService(c *fiber.Ctx) error {
 }
 
 func GetAchievementByIDService(c *fiber.Ctx) error {
-	StudentID := c.Params("student_id")
-	if StudentID == "" {
+	AchievementID := c.Params("AchievementID")
+	if AchievementID == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "user id tidak valid",
 		})
 	}
 
-	achievements, err := repo.GetAchievementByIDRepo(StudentID)
+	achievements, err := repo.GetAchievementByIDRepo(AchievementID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "tidak bisa mengambil data prestasi",
@@ -114,9 +121,9 @@ func DeleteAchievementService(c *fiber.Ctx) error {
 	// Jika BUKAN admin DAN BUKAN pemilik data → blokir
 	if role != "admin" && CurrectLoggedStudentID != ownerID {
 		return c.Status(403).JSON(fiber.Map{
-			"message": "maaf, kamu tidak berhak menghapus achievement ini",
+			"message":                "maaf, kamu tidak berhak menghapus achievement ini",
 			"CurrectLoggedStudentID": CurrectLoggedStudentID,
-			"ownerID": ownerID,
+			"ownerID":                ownerID,
 		})
 	}
 
@@ -134,3 +141,38 @@ func DeleteAchievementService(c *fiber.Ctx) error {
 	})
 
 }
+
+// func SubmitAchievementService (c *fiber.Ctx) error {
+
+// 	achievement_references_id := c.Params("achievement_references_id")
+// 	studentID := c.Locals("student_id")
+// 	role := c.Locals("")
+
+// 	ownerID, err := repo.GetUserIDofAchievementRepo(achievement_references_id)
+// 	if err != nil {
+// 		return c.Status(400).JSON(fiber.Map{
+// 			"messsage": "tidak dapat mengambil owner yang punya",
+// 			"err": err.Error(),
+// 		})
+// 	}
+
+// 	if ownerID == "" {
+// 		return c.Status(400).JSON(fiber.Map{
+// 			"message": "owner ID tidak ",
+// 		})
+// 	}
+
+// 	query, err := repo.DeleteAchievementRepo(achievement_references_id)
+// 	if err != nil {
+// 		return c.Status(400).JSON(fiber.Map{
+// 			"message": "tidak bisa submit achievement",
+// 			"error": err.Error(),
+// 		})
+// 	}
+
+// 	return c.Status(200).JSON(fiber.Map{
+// 		"status": query,
+// 		"message": "berhasil delete achievement",
+// 	})
+
+// }

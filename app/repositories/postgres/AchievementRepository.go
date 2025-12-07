@@ -67,13 +67,49 @@ func GetAllAchievementRepo() ([]models.Achievement, error) {
 	return results, nil
 }
 
+func GetAllAchievementByStudentIDRepo(studentID string) ([]models.Achievement, error) {
+	rows, err := databases.DatabaseQuery.Query(`
+		SELECT id, student_id, mongo_achievement_id, status, submitted_at, 
+			   rejection_note, created_at
+		FROM achievement_references
+		WHERE status != 'deleted'
+		AND student_id = $1
+	`, studentID)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var results []models.Achievement
+
+	for rows.Next() {
+		var ac models.Achievement
+		err := rows.Scan(
+			&ac.ID,
+			&ac.StudentID,
+			&ac.MongoId,
+			&ac.Status,
+			&ac.SubmittedAt,
+			&ac.RejectionNote,
+			&ac.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, ac)
+	}
+
+	return results, nil
+}
+
 func GetAchievementByIDRepo(StudentID string) ([]models.AchievementGabung, error) {
 
 	rows, err := databases.DatabaseQuery.Query(`
 		SELECT id, student_id, mongo_achievement_id, status, submitted_at, 
 			   rejection_note, created_at, updated_at
 		FROM achievement_references
-		WHERE student_id = $1
+		WHERE id = $1
 	`, StudentID)
 
 	if err != nil {
@@ -163,6 +199,31 @@ func DeleteAchievementRepo(achievement_references_id string) (bool, error) {
 
 	if rowsEffected == 0 {
 		return false, nil
+	}
+
+	return true, err
+
+}
+
+func SubmitAchievementRepository(studentID string) (bool, error) {
+
+	query, err := databases.DatabaseQuery.Exec(`
+		UPDATE achievement_references 
+		SET status = 'submitted'
+		WHERE student_id = $1
+	`, studentID)
+
+	if err != nil {
+		return false, err
+	}
+
+	rowsEffected, err := query.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	if rowsEffected == 0 {
+		return false, err
 	}
 
 	return true, err
