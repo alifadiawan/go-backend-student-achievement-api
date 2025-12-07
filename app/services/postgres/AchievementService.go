@@ -110,7 +110,6 @@ func DeleteAchievementService(c *fiber.Ctx) error {
 		})
 	}
 
-	// Ambil owner dari DB
 	ownerID, err := repo.GetUserIDofAchievementRepo(achievement_references_id)
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{
@@ -118,7 +117,6 @@ func DeleteAchievementService(c *fiber.Ctx) error {
 		})
 	}
 
-	// Jika BUKAN admin DAN BUKAN pemilik data → blokir
 	if role != "admin" && CurrectLoggedStudentID != ownerID {
 		return c.Status(403).JSON(fiber.Map{
 			"message":                "maaf, kamu tidak berhak menghapus achievement ini",
@@ -142,37 +140,28 @@ func DeleteAchievementService(c *fiber.Ctx) error {
 
 }
 
-// func SubmitAchievementService (c *fiber.Ctx) error {
+func SubmitAchievementService(c *fiber.Ctx) error {
+	achievementID := c.Params("achievement_references_id")
+	role := c.Locals("role")
+	loggedStudentID := c.Locals("student_id").(string)
 
-// 	achievement_references_id := c.Params("achievement_references_id")
-// 	studentID := c.Locals("student_id")
-// 	role := c.Locals("")
+	ownerID, err := repo.GetUserIDofAchievementRepo(achievementID)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"message": "tidak bisa mendapatkan owner", "error": err.Error()})
+	}
 
-// 	ownerID, err := repo.GetUserIDofAchievementRepo(achievement_references_id)
-// 	if err != nil {
-// 		return c.Status(400).JSON(fiber.Map{
-// 			"messsage": "tidak dapat mengambil owner yang punya",
-// 			"err": err.Error(),
-// 		})
-// 	}
+	if ownerID == "" {
+		return c.Status(404).JSON(fiber.Map{"message": "achievement tidak ditemukan"})
+	}
 
-// 	if ownerID == "" {
-// 		return c.Status(400).JSON(fiber.Map{
-// 			"message": "owner ID tidak ",
-// 		})
-// 	}
+	if role == "mahasiswa" && loggedStudentID != ownerID {
+		return c.Status(403).JSON(fiber.Map{"message": "maaf ya bukan punya anda"})
+	}
 
-// 	query, err := repo.DeleteAchievementRepo(achievement_references_id)
-// 	if err != nil {
-// 		return c.Status(400).JSON(fiber.Map{
-// 			"message": "tidak bisa submit achievement",
-// 			"error": err.Error(),
-// 		})
-// 	}
+	ok, err := repo.SubmitAchievementRepository(achievementID, ownerID)
+	if err != nil || !ok {
+		return c.Status(400).JSON(fiber.Map{"message": "tidak bisa submit achievement", "error": err.Error()})
+	}
 
-// 	return c.Status(200).JSON(fiber.Map{
-// 		"status": query,
-// 		"message": "berhasil delete achievement",
-// 	})
-
-// }
+	return c.Status(200).JSON(fiber.Map{"status": ok, "message": "berhasil submit achievement"})
+}

@@ -15,6 +15,9 @@ func AchievementRoutes(app *fiber.App) {
 	users.Get("/", services.GetAllAchievementService)
 	users.Get("/:AchievementID", services.GetAchievementByIDService)
 	users.Post("/", services.AddAchievementService)
-	users.Delete("/:AchievementID", services.DeleteAchievementService)
+	users.Delete("/:achievement_references_id", services.DeleteAchievementService)
+
+
+	users.Post("/submit/:achievement_references_id", services.SubmitAchievementService)
 
 }

@@ -205,13 +205,13 @@ func DeleteAchievementRepo(achievement_references_id string) (bool, error) {
 
 }
 
-func SubmitAchievementRepository(studentID string) (bool, error) {
+func SubmitAchievementRepository(AchievementID string, studentID string) (bool, error) {
 
 	query, err := databases.DatabaseQuery.Exec(`
 		UPDATE achievement_references 
 		SET status = 'submitted'
-		WHERE student_id = $1
-	`, studentID)
+		WHERE id = $1 AND student_id = $2
+	`, AchievementID, studentID)
 
 	if err != nil {
 		return false, err
