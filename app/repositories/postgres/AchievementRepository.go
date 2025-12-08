@@ -229,3 +229,28 @@ func SubmitAchievementRepository(AchievementID string, studentID string) (bool, 
 	return true, err
 
 }
+
+func ApproveAchievmentRepository(AchievmentID string) (bool, error) {
+
+	query, err := databases.DatabaseQuery.Exec(`
+		UPDATE achievment_references
+			SET status = 'approved'
+		WHERE id = $1
+	`)
+
+	if err != nil {
+		return false, err
+	}
+
+	rowsEffected, err := query.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	if rowsEffected == 0 {
+		return false, err
+	}
+
+	return true, err
+
+}

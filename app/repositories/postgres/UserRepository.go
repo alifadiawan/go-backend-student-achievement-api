@@ -44,7 +44,7 @@ func GetAllUserRepository() ([]models.User, error) {
 			&item.UpdatedAt,
 		)
 		if foreach != err {
-			return nil, err
+			return nil, foreach
 		}
 
 		Users = append(Users, item)

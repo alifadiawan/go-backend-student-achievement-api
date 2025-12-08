@@ -165,3 +165,39 @@ func SubmitAchievementService(c *fiber.Ctx) error {
 
 	return c.Status(200).JSON(fiber.Map{"status": ok, "message": "berhasil submit achievement"})
 }
+
+
+func ApproveAchievmentService(c *fiber.Ctx) error {
+
+	AchievementID := c.Params("achievement_references_id")
+	role := c.Locals("role")
+
+	if AchievementID == "" {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "achievement ID tidak valid",
+		})
+	}
+
+	if role == "mahasiswa" {
+		return c.Status(403).JSON(fiber.Map{
+			"message": "maap, anda tidak boleh akses route ini ",
+		})
+	}
+	
+	query, err := repo.ApproveAchievmentRepository(AchievementID)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "tidak dapat approve achievement",
+			"error": err.Error(),
+		})
+	}
+
+	return c.Status(200).JSON(fiber.Map{
+		"message" : "berhasil approve achievement",
+		"result": query,
+	})
+
+
+}
+
+
