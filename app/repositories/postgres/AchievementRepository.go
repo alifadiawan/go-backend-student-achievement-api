@@ -31,6 +31,24 @@ func GetUserIDofAchievementRepo(achievement_references_id string) (string, error
 	return studentID, nil
 }
 
+func GetAdvisorFromStudent(student_id string) (string, error) {
+
+	var advisor_id string
+
+	err := databases.DatabaseQuery.QueryRow(`
+		SELECT advisor_id
+		FROM students
+		WHERE id = $1
+	`, student_id).Scan(&advisor_id)
+
+	if err != nil {
+		return "", err
+	}
+
+	return advisor_id, err
+
+}
+
 func GetAllAchievementRepo() ([]models.Achievement, error) {
 	rows, err := databases.DatabaseQuery.Query(`
 		SELECT id, student_id, mongo_achievement_id, status, submitted_at,
@@ -249,6 +267,31 @@ func ApproveAchievmentRepository(AchievmentID string) (bool, error) {
 
 	if rowsEffected == 0 {
 		return false, err
+	}
+
+	return true, err
+
+}
+
+func VerifyAchievementRepo(achievment_references_id string) (bool, error) {
+
+	query, err := databases.DatabaseQuery.Exec(`
+		UPDATE achievement_references
+			SET status = 'verified'
+		WHERE id = $1
+	`, achievment_references_id)
+
+	if err != nil {
+		return false, err
+	}
+
+	result, err := query.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	if result == 0 {
+		return false, nil
 	}
 
 	return true, err

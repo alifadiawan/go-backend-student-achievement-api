@@ -97,7 +97,13 @@ func Profile(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(UserProfile)
+	// return c.JSON(UserProfile)
+	return c.JSON(fiber.Map{
+		"role_name" : c.Locals("role"),
+		"lecturer_id" : c.Locals("lecturer_id"),
+		"user_id" : c.Locals("user_id"),
+		"data": UserProfile,
+	})
 
 }
 

@@ -10,21 +10,25 @@ import (
 var secretString = []byte("stringrahasia")
 
 func CreateToken(user postgres.LoginResponse) (string, error) {
-	
-	var studentID, nim string
+
+	var studentID, nim , lecturerID string
 	if user.StudentID != nil {
 		studentID = *user.StudentID
 	}
 	if user.NIM != nil {
 		nim = *user.NIM
 	}
+	if user.LecturerID != nil {
+		lecturerID = *user.LecturerID
+	}
 
 	claims := postgres.JWTClaims{
-		UserID:    user.ID,
-		Username:  user.Username,
-		Role:      user.Role,
-		StudentID: studentID,
-		NIM:       nim,
+		UserID:     user.ID,
+		Username:   user.Username,
+		Role:       user.Role,
+		StudentID:  studentID,
+		NIM:        nim,
+		LecturerID: lecturerID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)), // 1 jam saja
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

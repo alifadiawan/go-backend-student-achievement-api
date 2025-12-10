@@ -50,12 +50,14 @@ func Authenticate(email string, password string) (*models.LoginResponse, error) 
 			u.full_name,
 			u.password_hash,
 			r.name AS role_name,
-			p.name AS permission_name
+			p.name AS permission_name,
+			l.id AS lecturer_id
 		FROM users AS u
 		JOIN roles AS r ON u.role_id = r.id
 		JOIN role_permissions AS rp ON r.id = rp.role_id
 		JOIN permissions AS p ON rp.permission_id = p.id
 		LEFT JOIN students AS st ON u.id = st.user_id
+		LEFT JOIN lecturers AS l ON u.id = l.user_id
         WHERE u.email = $1
    `
 
@@ -71,7 +73,7 @@ func Authenticate(email string, password string) (*models.LoginResponse, error) 
 	var firstRow = true
 
 	for rows.Next() {
-		var id, username, emailDB, fullName, roleName, permName string
+		var id, username, emailDB, fullName, roleName, permName, lecturerID string
 		var studentID, nim sql.NullString
 
 		err := rows.Scan(
@@ -84,7 +86,9 @@ func Authenticate(email string, password string) (*models.LoginResponse, error) 
 			&passwordHash,
 			&roleName,
 			&permName,
+			&lecturerID,
 		)
+
 		if err != nil {
 			return nil, err
 		}
@@ -101,6 +105,9 @@ func Authenticate(email string, password string) (*models.LoginResponse, error) 
 			}
 			if nim.Valid {
 				resp.NIM = &nim.String
+			}
+			if lecturerID != "" {
+				resp.LecturerID = &lecturerID
 			}
 
 			firstRow = false

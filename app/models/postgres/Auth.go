@@ -14,6 +14,7 @@ type LoginResponse struct {
 	Email       string   `json:"email"`
 	StudentID   *string   `json:"-"`
 	NIM         *string   `json:"-"`
+	LecturerID  *string  `json:"lecturer_id,omitempty"`
 	Username    string   `json:"username"`
 	FullName    string   `json:"full_name"`
 	Role        string   `json:"role"`
@@ -31,5 +32,6 @@ type JWTClaims struct {
 	Role      string `json:"role"`
 	StudentID string `json:"student_id"`
 	NIM       string `json:"nim"`
+	LecturerID string `json:"lecturer_id,omitempty"`
 	jwt.RegisteredClaims
 }

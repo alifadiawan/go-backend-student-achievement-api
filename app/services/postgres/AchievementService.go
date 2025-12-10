@@ -166,7 +166,6 @@ func SubmitAchievementService(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"status": ok, "message": "berhasil submit achievement"})
 }
 
-
 func ApproveAchievmentService(c *fiber.Ctx) error {
 
 	AchievementID := c.Params("achievement_references_id")
@@ -183,21 +182,78 @@ func ApproveAchievmentService(c *fiber.Ctx) error {
 			"message": "maap, anda tidak boleh akses route ini ",
 		})
 	}
-	
+
 	query, err := repo.ApproveAchievmentRepository(AchievementID)
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{
 			"message": "tidak dapat approve achievement",
-			"error": err.Error(),
+			"error":   err.Error(),
 		})
 	}
 
 	return c.Status(200).JSON(fiber.Map{
-		"message" : "berhasil approve achievement",
-		"result": query,
+		"message": "berhasil approve achievement",
+		"result":  query,
 	})
-
 
 }
 
+func VerifyAchievementService(c *fiber.Ctx) error {
+
+	achievementID := c.Params("achievement_references_id")
+	if achievementID == "" {
+		return c.Status(404).JSON(fiber.Map{
+			"message": "ID achievement references tidak valid",
+		})
+	}
+
+	// RBAC
+	role := c.Locals("role").(string)
+	if role != "dosen" && role != "admin" {
+		return c.Status(403).JSON(fiber.Map{
+			"message": "akses ditolak",
+		})
+	}
+
+	// Jika dosen harus cek bahawa achievement milik mahasiswa bimbingannya
+	if role == "dosen" {
+
+		studentID, err := repo.GetUserIDofAchievementRepo(achievementID)
+		if err != nil {
+			return c.Status(404).JSON(fiber.Map{
+				"message": "achievement tidak ditemukan",
+			})
+		}
+
+		advisorID, err := repo.GetAdvisorFromStudent(studentID)
+		if err != nil {
+			return c.Status(400).JSON(fiber.Map{
+				"message": "gagal mengambil advisor mahasiswa",
+				"error": err.Error(),
+			})
+		}
+
+		loggedLecturerID := c.Locals("lecturer_id").(string)
+		if advisorID != loggedLecturerID {
+			return c.Status(403).JSON(fiber.Map{
+				"message": "maaf, anda bukan dosen pembimbing mahasiswa ini",
+				"loggedLecturerID" : loggedLecturerID,
+				"advisorID" : advisorID,
+			})
+		}
+	}
+
+	result, err := repo.VerifyAchievementRepo(achievementID)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "error ketika verify achievement",
+			"error":   err.Error(),
+		})
+	}
+
+	return c.Status(200).JSON(fiber.Map{
+		"message": "Berhasil update achievement ke verified",
+		"data":    result,
+	})
+}
 
