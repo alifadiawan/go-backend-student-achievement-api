@@ -73,8 +73,9 @@ func Authenticate(email string, password string) (*models.LoginResponse, error) 
 	var firstRow = true
 
 	for rows.Next() {
-		var id, username, emailDB, fullName, roleName, permName, lecturerID string
+		var id, username, emailDB, fullName, roleName, permName string
 		var studentID, nim sql.NullString
+		var lecturerID sql.NullString
 
 		err := rows.Scan(
 			&id,
@@ -106,8 +107,8 @@ func Authenticate(email string, password string) (*models.LoginResponse, error) 
 			if nim.Valid {
 				resp.NIM = &nim.String
 			}
-			if lecturerID != "" {
-				resp.LecturerID = &lecturerID
+			if lecturerID.Valid {
+				resp.LecturerID = &lecturerID.String
 			}
 
 			firstRow = false

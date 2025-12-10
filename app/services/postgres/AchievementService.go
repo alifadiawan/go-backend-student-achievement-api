@@ -243,7 +243,8 @@ func VerifyAchievementService(c *fiber.Ctx) error {
 		}
 	}
 
-	result, err := repo.VerifyAchievementRepo(achievementID)
+
+	result, err := repo.VerifyAchievementRepo(achievementID, c.Locals("user_id").(string))
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{
 			"message": "error ketika verify achievement",
@@ -257,3 +258,66 @@ func VerifyAchievementService(c *fiber.Ctx) error {
 	})
 }
 
+
+func RejectAchievementService(c *fiber.Ctx) error {
+
+	var rejection_note models.AchievmentRejectRequest
+	achievementID := c.Params("achievement_references_id")
+
+	role := c.Locals("role")
+	if role == "mahasiswa" {
+		return c.Status(403).JSON(fiber.Map{
+			"message": "anda tidak boleh, maaf",
+		})
+	}
+
+	if role == "dosen" {
+		studentID, err := repo.GetUserIDofAchievementRepo(achievementID)
+		if err != nil {
+			return c.Status(404).JSON(fiber.Map{
+				"message": "achievement tidak ditemukan",
+			})
+		}
+
+		advisorID, err := repo.GetAdvisorFromStudent(studentID)
+		if err != nil {
+			return c.Status(400).JSON(fiber.Map{
+				"message": "gagal mengambil advisor mahasiswa",
+				"error": err.Error(),
+			})
+		}
+
+		loggedLecturerID := c.Locals("lecturer_id").(string)
+		if advisorID != loggedLecturerID {
+			return c.Status(403).JSON(fiber.Map{
+				"message": "maaf, anda bukan dosen pembimbing mahasiswa ini",
+				"loggedLecturerID" : loggedLecturerID,
+				"advisorID" : advisorID,
+			})
+		}
+	}
+	
+	
+	err := c.BodyParser(&rejection_note)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "rejection note tidak valid",
+		})
+	}
+
+	query, err := repo.RejectAchievementRepo(achievementID, rejection_note.RejectionNote)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "tidak dapat reject achievement",
+			"error": err.Error(),
+		})
+	}
+
+
+	return c.Status(200).JSON(fiber.Map{
+		"message": "berhasil reject achievement",
+		"status": "success",
+		"data": query,
+	})
+
+}

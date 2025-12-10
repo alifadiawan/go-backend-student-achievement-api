@@ -273,13 +273,41 @@ func ApproveAchievmentRepository(AchievmentID string) (bool, error) {
 
 }
 
-func VerifyAchievementRepo(achievment_references_id string) (bool, error) {
+func VerifyAchievementRepo(achievment_references_id string, lecturer_id string) (bool, error) {
 
 	query, err := databases.DatabaseQuery.Exec(`
 		UPDATE achievement_references
-			SET status = 'verified'
+			SET status = 'verified',
+			verified_at = now(),
+			verified_by = $2
 		WHERE id = $1
-	`, achievment_references_id)
+	`, achievment_references_id, lecturer_id)
+
+	if err != nil {
+		return false, err
+	}
+
+	result, err := query.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	if result == 0 {
+		return false, nil
+	}
+
+	return true, err
+
+}
+
+func RejectAchievementRepo(achievement_references_id string, rejection_note string) (bool, error) {
+
+	query, err := databases.DatabaseQuery.Exec(`
+		UPDATE achievement_references
+			SET status = 'rejected',
+			rejection_note = $2
+		WHERE id = $1
+	`, achievement_references_id, rejection_note)
 
 	if err != nil {
 		return false, err

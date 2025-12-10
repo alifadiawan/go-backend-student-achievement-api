@@ -21,5 +21,6 @@ func AchievementRoutes(app *fiber.App) {
 	users.Post("/submit/:achievement_references_id", services.SubmitAchievementService)
 	users.Post("/approve/:achievement_references_id", services.ApproveAchievmentService)
 	users.Post("/verify/:achievement_references_id", services.VerifyAchievementService)
+	users.Post("/reject/:achievement_references_id", services.RejectAchievementService)
 
 }
