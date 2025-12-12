@@ -2,6 +2,7 @@ package routes
 
 import (
 	services "backendUAS/app/services/postgres"
+	servicesMongo "backendUAS/app/services/mongo"
 	middleware "backendUAS/middlewares"
 	"github.com/gofiber/fiber/v2"
 )
@@ -22,5 +23,6 @@ func AchievementRoutes(app *fiber.App) {
 	users.Post("/approve/:achievement_references_id", services.ApproveAchievmentService)
 	users.Post("/verify/:achievement_references_id", services.VerifyAchievementService)
 	users.Post("/reject/:achievement_references_id", services.RejectAchievementService)
+	users.Post("/attachments/:achievement_references_id", servicesMongo.UploadAchievementService)	
 
 }

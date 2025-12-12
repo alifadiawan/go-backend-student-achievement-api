@@ -1,6 +1,7 @@
 package mongo
 
 import (
+	"mime/multipart"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -15,6 +16,12 @@ type Achievement struct {
 	Details         any                `json:"details"`
 	CreatedAt       time.Time          `json:"created_at"`
 	UpdatedAt       time.Time          `json:"updated_at"`
+}
+
+type AchievementAttachementRequest struct {
+	AchievementReferencesID        string
+	StudentID  string             `json:"student_id"`
+	Attachment *multipart.FileHeader
 }
 
 type CompetitionDetails struct {
