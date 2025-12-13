@@ -121,61 +121,56 @@ func GetAllAchievementByStudentIDRepo(studentID string) ([]models.Achievement, e
 	return results, nil
 }
 
-func GetAchievementByIDRepo(StudentID string) ([]models.AchievementGabung, error) {
+func GetAchievementByIDRepo(ID string) (*models.AchievementGabung, error) {
 
-	rows, err := databases.DatabaseQuery.Query(`
+	row := databases.DatabaseQuery.QueryRow(`
 		SELECT id, student_id, mongo_achievement_id, status, submitted_at, 
 			   rejection_note, created_at, updated_at
 		FROM achievement_references
 		WHERE id = $1
-	`, StudentID)
+	`, ID)
 
+	var ac models.Achievement
+
+	err := row.Scan(
+		&ac.ID,
+		&ac.StudentID,
+		&ac.MongoId,
+		&ac.Status,
+		&ac.SubmittedAt,
+		&ac.RejectionNote,
+		&ac.CreatedAt,
+		&ac.UpdatedAt,
+	)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
 		return nil, err
 	}
-	defer rows.Close()
 
-	var results []models.AchievementGabung
-
+	// Mongo
 	collection := databases.MongoClient.Database(databaseName).Collection("achievements")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	for rows.Next() {
-		var ac models.Achievement
+	var mongoData map[string]interface{}
 
-		err := rows.Scan(
-			&ac.ID,
-			&ac.StudentID,
-			&ac.MongoId,
-			&ac.Status,
-			&ac.SubmittedAt,
-			&ac.RejectionNote,
-			&ac.CreatedAt,
-			&ac.UpdatedAt,
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		// Query MongoDB
-		objID, _ := primitive.ObjectIDFromHex(ac.MongoId)
-
-		var mongoData map[string]interface{}
-		err = collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&mongoData)
-		if err != nil {
-			mongoData = make(map[string]interface{})
-		}
-
-		// Append ke hasil final
-		results = append(results, models.AchievementGabung{
-			Achievement: ac,
-			Details:     mongoData,
-		})
+	objID, err := primitive.ObjectIDFromHex(ac.MongoId)
+	if err == nil {
+		_ = collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&mongoData)
 	}
 
-	return results, nil
+	if mongoData == nil {
+		mongoData = map[string]interface{}{}
+	}
+
+	return &models.AchievementGabung{
+		Achievement: ac,
+		Details:     mongoData,
+	}, nil
 }
+
 
 func InsertAchievementPostgres(studentID string, mongoID string, status string) error {
 	res, err := databases.DatabaseQuery.Exec(`
