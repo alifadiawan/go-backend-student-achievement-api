@@ -20,6 +20,7 @@ func StudentLecturerRoute(app *fiber.App) {
 	student.Get("/:id/advisor", service.UpdateStudentAdvisorService)
 	
 
-	// lecturer := v1.Group("/lecturer", middlewares.AuthRequired())
+	lecturer := v1.Group("/lecturer", middlewares.AuthRequired())
+	lecturer.Get("/", service.GetLecturerService)
 	
 }
