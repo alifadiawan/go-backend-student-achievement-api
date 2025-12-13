@@ -38,7 +38,8 @@ func GetAllAchievementByIDRepo(userid string) ([]models.Achievement, error) {
 
 	return AllAchievement, err
 
-}
+}	
+
 
 func AddAchievementRepositoryMongo(achievement models.Achievement) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -104,4 +105,3 @@ func UploadAchievementRepo(achievementRequest models.AchievementAttachementReque
 
 	return true, nil
 }
-

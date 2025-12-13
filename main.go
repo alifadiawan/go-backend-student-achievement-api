@@ -15,6 +15,7 @@ func main() {
 	routes.AuthRoutes(app)
 	routes.UserRoutes(app)
 	routes.AchievementRoutes(app)
+	routes.StudentLecturerRoute(app)
 
 	// databases
 	_, err := databases.ConnectToPostgres()
