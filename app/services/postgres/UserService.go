@@ -7,6 +7,16 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+
+// @Summary Get all users
+// @Description Mengambil semua data user
+// @Tags User
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{} "Berhasil mengambil semua user"
+// @Failure 400 {object} map[string]interface{} "Gagal mengambil data user"
+// @Security BearerAuth
+// @Router /api/v1/users [get]
 func GetAllUserService(c *fiber.Ctx) error {
 
 	var Users []models.User
@@ -26,6 +36,19 @@ func GetAllUserService(c *fiber.Ctx) error {
 
 }
 
+
+
+// @Summary Get user by ID
+// @Description Mengambil data user berdasarkan user_id. Hanya admin atau user itu sendiri yang dapat mengakses.
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param user_id path string true "User ID"
+// @Success 200 {object} map[string]interface{} "Berhasil mengambil user"
+// @Failure 400 {object} map[string]interface{} "Tidak dapat mengambil user dengan ID tersebut"
+// @Failure 403 {object} map[string]interface{} "Hanya admin atau user itu sendiri yang boleh mengakses"
+// @Security BearerAuth
+// @Router /api/v1/users/{user_id} [get]
 func GetUsersByIdService(c *fiber.Ctx) error {
 	UserID := c.Params("user_id")
 
@@ -54,6 +77,18 @@ func GetUsersByIdService(c *fiber.Ctx) error {
 
 }
 
+
+
+// @Summary Store new user
+// @Description Menambahkan user baru
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param request body models.UpdateUser true "User Request"
+// @Success 200 {object} map[string]interface{} "Berhasil menambahkan user"
+// @Failure 400 {object} map[string]interface{} "Body tidak valid atau gagal menambahkan user"
+// @Security BearerAuth
+// @Router /api/v1/users [post]
 func StoreUserService(c *fiber.Ctx) error {
 	var UserRequest models.UpdateUser
 
@@ -80,6 +115,20 @@ func StoreUserService(c *fiber.Ctx) error {
 
 }
 
+
+
+// @Summary Update user
+// @Description Mengupdate data user berdasarkan user_id
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param user_id path string true "User ID"
+// @Param request body models.UpdateUser true "User Request"
+// @Success 200 {object} map[string]interface{} "Berhasil mengupdate user"
+// @Failure 400 {object} map[string]interface{} "Body tidak valid atau gagal mengupdate user"
+// @Failure 404 {object} map[string]interface{} "User tidak ditemukan"
+// @Security BearerAuth
+// @Router /api/v1/users/{user_id} [put]
 func UpdateUserService(c *fiber.Ctx) error {
 	userid := c.Params("user_id")
 	var userRequest models.UpdateUser
@@ -113,6 +162,19 @@ func UpdateUserService(c *fiber.Ctx) error {
 
 }
 
+
+// @Summary Update user role
+// @Description Mengupdate role user berdasarkan user_id
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param user_id path string true "User ID"
+// @Param request body models.UpdateUserRole true "Update User Role Request"
+// @Success 200 {object} map[string]interface{} "Berhasil mengupdate role user"
+// @Failure 400 {object} map[string]interface{} "Body tidak valid atau gagal mengupdate role user"
+// @Failure 404 {object} map[string]interface{} "User tidak ditemukan"
+// @Security BearerAuth
+// @Router /api/v1/users/{user_id}/role [put]
 func UpdateUserRoleService(c *fiber.Ctx) error {
 	userid := c.Params("user_id")
 	var userRequest models.UpdateUserRole
@@ -146,6 +208,18 @@ func UpdateUserRoleService(c *fiber.Ctx) error {
 
 }
 
+
+
+// @Summary Delete user
+// @Description Menghapus user berdasarkan user_id
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {object} map[string]interface{} "Berhasil menghapus user"
+// @Failure 400 {object} map[string]interface{} "Gagal menghapus user"
+// @Security BearerAuth
+// @Router /api/v1/users/{id} [delete]
 func DeleteUserService(c *fiber.Ctx) error {
 	userid := c.Params("id")
 

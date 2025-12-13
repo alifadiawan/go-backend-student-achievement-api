@@ -8,6 +8,16 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// @Summary Login user dan generate token JWT
+// @Description Endpoint ini digunakan untuk melakukan login user. Mengembalikan token JWT dan refresh token beserta data user.
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body models.LoginRequest true "Login Request"
+// @Success 200 {object} models.ApiResponse "Login berhasil"
+// @Failure 400 {object} map[string]interface{} "Request tidak valid / body tidak valid / email dan password wajib diisi"
+// @Router /api/v1/auth/login [post]
+/// @Security BearerAuth
 func LoginService(c *fiber.Ctx) error {
 
 	var Request models.LoginRequest
@@ -75,6 +85,17 @@ func LoginService(c *fiber.Ctx) error {
 
 }
 
+
+// @Summary Get user profile
+// @Description Mengambil profile user berdasarkan token JWT yang aktif
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{} "Berhasil mengambil profile user"
+// @Failure 400 {object} map[string]interface{} "ID tidak ditemukan / error saat mengambil profile"
+// @Security ApiKeyAuth
+// @Router /api/v1/auth/profile [get]
+/// @Security BearerAuth
 func Profile(c *fiber.Ctx) error {
 	UserIDJWT := c.Locals("user_id")
 	UserID := UserIDJWT.(string)
@@ -107,6 +128,15 @@ func Profile(c *fiber.Ctx) error {
 
 }
 
+
+// @Summary Logout user
+// @Description Logout user dan menghapus session/token aktif
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]string "Logout berhasil"
+// @Router /api/v1/auth/logout [post]
+/// @Security BearerAuth
 func LogoutService(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"message": "logout successful",

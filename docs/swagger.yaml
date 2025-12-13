@@ -1,0 +1,319 @@
+definitions:
+  postgres.ApiResponse:
+    properties:
+      data: {}
+      status:
+        type: string
+    type: object
+  postgres.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  postgres.UpdateUser:
+    properties:
+      email:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: string
+      updatedAt:
+        type: string
+      username:
+        type: string
+    type: object
+  postgres.UpdateUserRole:
+    properties:
+      id:
+        type: string
+      roleName:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  description: Sebuah sistem backend berbasis go yang mengelola prestasi mahasiswa
+  title: Backend UAS - Sistem Kelola Prestasi Mahasiswa
+  version: "1.0"
+paths:
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Endpoint ini digunakan untuk melakukan login user. Mengembalikan
+        token JWT dan refresh token beserta data user.
+      parameters:
+      - description: Login Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/postgres.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login berhasil
+          schema:
+            $ref: '#/definitions/postgres.ApiResponse'
+        "400":
+          description: Request tidak valid / body tidak valid / email dan password
+            wajib diisi
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Login user dan generate token JWT
+      tags:
+      - Auth
+  /api/v1/auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Logout user dan menghapus session/token aktif
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logout berhasil
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Logout user
+      tags:
+      - Auth
+  /api/v1/auth/profile:
+    get:
+      consumes:
+      - application/json
+      description: Mengambil profile user berdasarkan token JWT yang aktif
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil profile user
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: ID tidak ditemukan / error saat mengambil profile
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      - BearerAuth: []
+      summary: Get user profile
+      tags:
+      - Auth
+  /api/v1/users:
+    get:
+      consumes:
+      - application/json
+      description: Mengambil semua data user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil semua user
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Gagal mengambil data user
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all users
+      tags:
+      - User
+    post:
+      consumes:
+      - application/json
+      description: Menambahkan user baru
+      parameters:
+      - description: User Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/postgres.UpdateUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil menambahkan user
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Body tidak valid atau gagal menambahkan user
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Store new user
+      tags:
+      - User
+  /api/v1/users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Menghapus user berdasarkan user_id
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil menghapus user
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Gagal menghapus user
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete user
+      tags:
+      - User
+  /api/v1/users/{user_id}:
+    get:
+      consumes:
+      - application/json
+      description: Mengambil data user berdasarkan user_id. Hanya admin atau user
+        itu sendiri yang dapat mengakses.
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil user
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Tidak dapat mengambil user dengan ID tersebut
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Hanya admin atau user itu sendiri yang boleh mengakses
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get user by ID
+      tags:
+      - User
+    put:
+      consumes:
+      - application/json
+      description: Mengupdate data user berdasarkan user_id
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: User Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/postgres.UpdateUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengupdate user
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Body tidak valid atau gagal mengupdate user
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: User tidak ditemukan
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update user
+      tags:
+      - User
+  /api/v1/users/{user_id}/role:
+    put:
+      consumes:
+      - application/json
+      description: Mengupdate role user berdasarkan user_id
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Update User Role Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/postgres.UpdateUserRole'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengupdate role user
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Body tidak valid atau gagal mengupdate role user
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: User tidak ditemukan
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update user role
+      tags:
+      - User
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by your JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
