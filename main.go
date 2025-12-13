@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -18,6 +19,10 @@ func main() {
 	routes.StudentLecturerRoute(app)
 
 	// databases
+	if err := godotenv.Load(); err != nil {
+		log.Fatal(".env not loaded")
+	}
+
 	_, err := databases.ConnectToPostgres()
 	if err != nil {
 		log.Fatal("Postgres tidak Connect: ", err)
