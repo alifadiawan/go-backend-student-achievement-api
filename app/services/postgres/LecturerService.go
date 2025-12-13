@@ -6,6 +6,18 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+
+// @Summary Get lecturer data
+// @Description Mengambil data dosen. Mahasiswa hanya bisa melihat dosen pembimbingnya, admin dapat melihat semua dosen.
+// @Tags Lecturer
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{} "Berhasil mengambil data dosen"
+// @Failure 400 {object} map[string]interface{} "Tidak dapat mengambil data dosen"
+// @Failure 403 {object} map[string]interface{} "Role tidak memiliki akses"
+// @Failure 404 {object} map[string]interface{} "Role tidak valid"
+// @Security BearerAuth
+// @Router /api/v1/lecturers [get]
 func GetLecturerService(c *fiber.Ctx) error {
 
 	role := c.Locals("role")

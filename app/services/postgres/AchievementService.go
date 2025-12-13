@@ -9,6 +9,16 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+
+// @Summary Get all achievements
+// @Description Admin dapat melihat semua prestasi, mahasiswa hanya melihat prestasinya sendiri
+// @Tags Achievement
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{} "Berhasil mengambil data prestasi"
+// @Failure 400 {object} map[string]interface{} "Gagal mengambil data prestasi"
+// @Security BearerAuth
+// @Router /api/v1/achievements [get]
 func GetAllAchievementService(c *fiber.Ctx) error {
 
 	var result []models.Achievement
@@ -41,6 +51,18 @@ func GetAllAchievementService(c *fiber.Ctx) error {
 	})
 }
 
+
+// @Summary Get achievement by ID
+// @Description Mengambil detail prestasi berdasarkan achievement ID
+// @Tags Achievement
+// @Accept json
+// @Produce json
+// @Param AchievementID path string true "Achievement ID"
+// @Success 200 {object} map[string]interface{} "Berhasil mengambil data prestasi"
+// @Failure 400 {object} map[string]interface{} "Achievement ID tidak valid"
+// @Failure 500 {object} map[string]interface{} "Gagal mengambil data prestasi"
+// @Security BearerAuth
+// @Router /api/v1/achievements/{AchievementID} [get]
 func GetAchievementByIDService(c *fiber.Ctx) error {
 	AchievementID := c.Params("AchievementID")
 	if AchievementID == "" {
@@ -62,6 +84,19 @@ func GetAchievementByIDService(c *fiber.Ctx) error {
 		"data":   achievements,
 	})
 }
+
+// @Summary Add new achievement
+// @Description Mahasiswa menambahkan prestasi baru (MongoDB + PostgreSQL)
+// @Tags Achievement
+// @Accept json
+// @Produce json
+// @Param request body modelsMongo.Achievement true "Achievement Request"
+// @Success 200 {object} map[string]interface{} "Berhasil menambahkan prestasi"
+// @Failure 400 {object} map[string]interface{} "Body tidak valid"
+// @Failure 403 {object} map[string]interface{} "Bukan mahasiswa"
+// @Failure 500 {object} map[string]interface{} "Gagal menyimpan data prestasi"
+// @Security BearerAuth
+// @Router /api/v1/achievements [post]
 
 func AddAchievementService(c *fiber.Ctx) error {
 	userRole := c.Locals("role")
@@ -98,6 +133,19 @@ func AddAchievementService(c *fiber.Ctx) error {
 	})
 }
 
+
+// @Summary Delete achievement
+// @Description Menghapus prestasi. Hanya admin atau pemilik prestasi
+// @Tags Achievement
+// @Accept json
+// @Produce json
+// @Param achievement_references_id path string true "Achievement Reference ID"
+// @Success 200 {object} map[string]interface{} "Berhasil menghapus prestasi"
+// @Failure 400 {object} map[string]interface{} "ID tidak valid atau gagal menghapus"
+// @Failure 403 {object} map[string]interface{} "Tidak memiliki akses"
+// @Failure 404 {object} map[string]interface{} "Achievement tidak ditemukan"
+// @Security BearerAuth
+// @Router /api/v1/achievements/{achievement_references_id} [delete]
 func DeleteAchievementService(c *fiber.Ctx) error {
 
 	role := c.Locals("role")
@@ -140,6 +188,19 @@ func DeleteAchievementService(c *fiber.Ctx) error {
 
 }
 
+
+// @Summary Submit achievement
+// @Description Mahasiswa submit prestasi untuk diverifikasi
+// @Tags Achievement
+// @Accept json
+// @Produce json
+// @Param achievement_references_id path string true "Achievement Reference ID"
+// @Success 200 {object} map[string]interface{} "Berhasil submit prestasi"
+// @Failure 400 {object} map[string]interface{} "Gagal submit prestasi"
+// @Failure 403 {object} map[string]interface{} "Bukan pemilik prestasi"
+// @Failure 404 {object} map[string]interface{} "Achievement tidak ditemukan"
+// @Security BearerAuth
+// @Router /api/v1/achievements/{achievement_references_id}/submit [post]
 func SubmitAchievementService(c *fiber.Ctx) error {
 	achievementID := c.Params("achievement_references_id")
 	role := c.Locals("role")
@@ -166,6 +227,18 @@ func SubmitAchievementService(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"status": ok, "message": "berhasil submit achievement"})
 }
 
+
+// @Summary Approve achievement
+// @Description Admin atau dosen menyetujui prestasi mahasiswa
+// @Tags Achievement
+// @Accept json
+// @Produce json
+// @Param achievement_references_id path string true "Achievement Reference ID"
+// @Success 200 {object} map[string]interface{} "Berhasil approve prestasi"
+// @Failure 400 {object} map[string]interface{} "Gagal approve prestasi"
+// @Failure 403 {object} map[string]interface{} "Akses ditolak"
+// @Security BearerAuth
+// @Router /api/v1/achievements/{achievement_references_id}/approve [post]
 func ApproveAchievmentService(c *fiber.Ctx) error {
 
 	AchievementID := c.Params("achievement_references_id")
@@ -198,6 +271,19 @@ func ApproveAchievmentService(c *fiber.Ctx) error {
 
 }
 
+
+// @Summary Verify achievement
+// @Description Verifikasi prestasi oleh dosen pembimbing atau admin
+// @Tags Achievement
+// @Accept json
+// @Produce json
+// @Param achievement_references_id path string true "Achievement Reference ID"
+// @Success 200 {object} map[string]interface{} "Berhasil verify prestasi"
+// @Failure 400 {object} map[string]interface{} "Gagal verify prestasi"
+// @Failure 403 {object} map[string]interface{} "Akses ditolak"
+// @Failure 404 {object} map[string]interface{} "Achievement tidak ditemukan"
+// @Security BearerAuth
+// @Router /api/v1/achievements/{achievement_references_id}/verify [post]
 func VerifyAchievementService(c *fiber.Ctx) error {
 
 	achievementID := c.Params("achievement_references_id")
@@ -257,6 +343,20 @@ func VerifyAchievementService(c *fiber.Ctx) error {
 	})
 }
 
+
+// @Summary Reject achievement
+// @Description Menolak prestasi dengan catatan penolakan
+// @Tags Achievement
+// @Accept json
+// @Produce json
+// @Param achievement_references_id path string true "Achievement Reference ID"
+// @Param request body models.AchievmentRejectRequest true "Rejection Note"
+// @Success 200 {object} map[string]interface{} "Berhasil reject prestasi"
+// @Failure 400 {object} map[string]interface{} "Gagal reject prestasi"
+// @Failure 403 {object} map[string]interface{} "Akses ditolak"
+// @Failure 404 {object} map[string]interface{} "Achievement tidak ditemukan"
+// @Security BearerAuth
+// @Router /api/v1/achievements/{achievement_references_id}/reject [post]
 func RejectAchievementService(c *fiber.Ctx) error {
 
 	var rejection_note models.AchievmentRejectRequest
@@ -318,6 +418,17 @@ func RejectAchievementService(c *fiber.Ctx) error {
 
 }
 
+
+// @Summary Get achievement history
+// @Description Mengambil riwayat status prestasi (draft, submitted, rejected)
+// @Tags Achievement
+// @Accept json
+// @Produce json
+// @Param achievement_references_id path string true "Achievement Reference ID"
+// @Success 200 {object} map[string]interface{} "Berhasil mengambil history prestasi"
+// @Failure 404 {object} map[string]interface{} "Achievement tidak ditemukan"
+// @Security BearerAuth
+// @Router /api/v1/achievements/{achievement_references_id}/history [get]
 func HistoryAchievementService(c *fiber.Ctx) error {
 
 	achievement_referencens_id := c.Params("achievement_references_id")

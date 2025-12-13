@@ -1,4 +1,9 @@
 definitions:
+  postgres.AchievmentRejectRequest:
+    properties:
+      rejection_note:
+        type: string
+    type: object
   postgres.ApiResponse:
     properties:
       data: {}
@@ -41,6 +46,289 @@ info:
   title: Backend UAS - Sistem Kelola Prestasi Mahasiswa
   version: "1.0"
 paths:
+  /api/v1/achievements:
+    get:
+      consumes:
+      - application/json
+      description: Admin dapat melihat semua prestasi, mahasiswa hanya melihat prestasinya
+        sendiri
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil data prestasi
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Gagal mengambil data prestasi
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all achievements
+      tags:
+      - Achievement
+  /api/v1/achievements/{AchievementID}:
+    get:
+      consumes:
+      - application/json
+      description: Mengambil detail prestasi berdasarkan achievement ID
+      parameters:
+      - description: Achievement ID
+        in: path
+        name: AchievementID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil data prestasi
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Achievement ID tidak valid
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Gagal mengambil data prestasi
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get achievement by ID
+      tags:
+      - Achievement
+  /api/v1/achievements/{achievement_references_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Menghapus prestasi. Hanya admin atau pemilik prestasi
+      parameters:
+      - description: Achievement Reference ID
+        in: path
+        name: achievement_references_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil menghapus prestasi
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: ID tidak valid atau gagal menghapus
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Tidak memiliki akses
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Achievement tidak ditemukan
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete achievement
+      tags:
+      - Achievement
+  /api/v1/achievements/{achievement_references_id}/approve:
+    post:
+      consumes:
+      - application/json
+      description: Admin atau dosen menyetujui prestasi mahasiswa
+      parameters:
+      - description: Achievement Reference ID
+        in: path
+        name: achievement_references_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil approve prestasi
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Gagal approve prestasi
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Akses ditolak
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Approve achievement
+      tags:
+      - Achievement
+  /api/v1/achievements/{achievement_references_id}/history:
+    get:
+      consumes:
+      - application/json
+      description: Mengambil riwayat status prestasi (draft, submitted, rejected)
+      parameters:
+      - description: Achievement Reference ID
+        in: path
+        name: achievement_references_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil history prestasi
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Achievement tidak ditemukan
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get achievement history
+      tags:
+      - Achievement
+  /api/v1/achievements/{achievement_references_id}/reject:
+    post:
+      consumes:
+      - application/json
+      description: Menolak prestasi dengan catatan penolakan
+      parameters:
+      - description: Achievement Reference ID
+        in: path
+        name: achievement_references_id
+        required: true
+        type: string
+      - description: Rejection Note
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/postgres.AchievmentRejectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil reject prestasi
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Gagal reject prestasi
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Akses ditolak
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Achievement tidak ditemukan
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Reject achievement
+      tags:
+      - Achievement
+  /api/v1/achievements/{achievement_references_id}/submit:
+    post:
+      consumes:
+      - application/json
+      description: Mahasiswa submit prestasi untuk diverifikasi
+      parameters:
+      - description: Achievement Reference ID
+        in: path
+        name: achievement_references_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil submit prestasi
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Gagal submit prestasi
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Bukan pemilik prestasi
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Achievement tidak ditemukan
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Submit achievement
+      tags:
+      - Achievement
+  /api/v1/achievements/{achievement_references_id}/verify:
+    post:
+      consumes:
+      - application/json
+      description: Verifikasi prestasi oleh dosen pembimbing atau admin
+      parameters:
+      - description: Achievement Reference ID
+        in: path
+        name: achievement_references_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil verify prestasi
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Gagal verify prestasi
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Akses ditolak
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Achievement tidak ditemukan
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Verify achievement
+      tags:
+      - Achievement
   /api/v1/auth/login:
     post:
       consumes:
@@ -115,6 +403,40 @@ paths:
       summary: Get user profile
       tags:
       - Auth
+  /api/v1/lecturers:
+    get:
+      consumes:
+      - application/json
+      description: Mengambil data dosen. Mahasiswa hanya bisa melihat dosen pembimbingnya,
+        admin dapat melihat semua dosen.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil data dosen
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Tidak dapat mengambil data dosen
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Role tidak memiliki akses
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Role tidak valid
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get lecturer data
+      tags:
+      - Lecturer
   /api/v1/users:
     get:
       consumes:
