@@ -14,13 +14,13 @@ func StudentLecturerRoute(app *fiber.App) {
 	v1 := api.Group("/v1")
 
 	student := v1.Group("/student", middlewares.AuthRequired())
-	student.Get("/", service.GetStudentsService)
-	student.Get("/:id", service.GetStudentByIDService)
-	student.Get("/:id/achievements", service.GetStudentAchievementByIDService)
-	student.Get("/:id/advisor", service.UpdateStudentAdvisorService)
+	student.Get("/", middlewares.Permission("student:view",service.GetStudentsService))
+	student.Get("/:id", middlewares.Permission("student:view",service.GetStudentByIDService))
+	student.Get("/:id/achievements", middlewares.Permission("student:view",service.GetStudentAchievementByIDService))
+	student.Get("/:id/advisor",middlewares.Permission("student:view", service.UpdateStudentAdvisorService))
 	
 
 	lecturer := v1.Group("/lecturer", middlewares.AuthRequired())
-	lecturer.Get("/", service.GetLecturerService)
+	lecturer.Get("/", middlewares.Permission("lecturer:view",service.GetLecturerService))
 	
 }

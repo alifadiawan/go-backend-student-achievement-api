@@ -23,12 +23,12 @@ func setup() {
 
 	users := v1.Group("/users", middleware.AuthRequired())
 
-	users.Get("/", middleware.OnlyAdmin, services.GetAllUserService)
+	users.Get("/", middleware.Permission("user:manage", services.GetAllUserService))
 	users.Get("/:user_id", services.GetUsersByIdService)
-	users.Post("/", middleware.OnlyAdmin, services.StoreUserService)
-	users.Put("/:user_id", middleware.OnlyAdmin, services.UpdateUserService)
-	users.Put("/role/:user_id", middleware.OnlyAdmin, services.UpdateUserRoleService)
-	users.Delete("/:id", middleware.OnlyAdmin, services.DeleteUserService)
+	users.Post("/", middleware.Permission("user:manage", services.StoreUserService))
+	users.Put("/:user_id", middleware.Permission("user:manage", services.UpdateUserService))
+	users.Put("/role/:user_id", middleware.Permission("user:manage", services.UpdateUserRoleService))
+	users.Delete("/:id", middleware.Permission("user:manage", services.DeleteUserService))
 
 	// Dummy admin token
 	adminToken = "Bearer " + "fake-admin-jwt"
@@ -72,11 +72,11 @@ func TestUsersRoutes(t *testing.T) {
 
 	t.Run("Store user", func(t *testing.T) {
 		payload := map[string]interface{}{
-			"username": "testuser",
-			"email":    "testuser@example.com",
+			"username":  "testuser",
+			"email":     "testuser@example.com",
 			"full_name": "Test User",
-			"role_id": uuid.New(),
-			"password": "password123",
+			"role_id":   uuid.New(),
+			"password":  "password123",
 		}
 		resp := request("POST", "/api/v1/users", payload, adminToken)
 		if resp.Code != 200 {

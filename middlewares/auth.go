@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	repoPG "backendUAS/app/repositories/postgres"
 	"backendUAS/utils"
 	"strings"
 
@@ -29,13 +30,21 @@ func AuthRequired() fiber.Handler {
 				"error": "Token tidak valid atau expired",
 			})
 		}
-		
-		c.Locals("user_id", claims.UserID)
+
+		result := c.Locals("user_id", claims.UserID)
 		c.Locals("student_id", claims.StudentID)
 		c.Locals("lecturer_id", claims.LecturerID)
 		c.Locals("nim", claims.NIM)
 		c.Locals("username", claims.Username)
 		c.Locals("role", claims.Role)
+
+		user_id := result.(string)
+		permission, err := repoPG.LoadPermissions(user_id)
+		if err != nil {
+			return fiber.ErrForbidden
+		}
+
+		c.Locals("permissions", permission)
 
 		return c.Next()
 	}
