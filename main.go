@@ -38,6 +38,7 @@ func main() {
 	routes.UserRoutes(app)
 	routes.AchievementRoutes(app)
 	routes.StudentLecturerRoute(app)
+	routes.AnalyticsRoute(app)
 
 	// databases
 	if err := godotenv.Load(); err != nil {
