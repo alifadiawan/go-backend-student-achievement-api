@@ -8,16 +8,16 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func AuthRequired() fiber.Handler {
+func AuthRequired() func(*fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		authHeader := c.Get("Authorization")
 		if authHeader == "" {
-			return c.Status(401).JSON(fiber.Map{
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"error": "Token akses diperlukan",
 			})
 		}
 
-		token := ""
+		var token string
 		if strings.HasPrefix(authHeader, "Bearer ") {
 			token = strings.TrimPrefix(authHeader, "Bearer ")
 		} else {
@@ -26,25 +26,34 @@ func AuthRequired() fiber.Handler {
 
 		claims, err := utils.ValidateToken(token)
 		if err != nil {
-			return c.Status(401).JSON(fiber.Map{
-				"error": "Token tidak valid atau expired",
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "Token tidak valid",
 			})
 		}
 
-		result := c.Locals("user_id", claims.UserID)
+		// Simpan data user ke context
+		c.Locals("user_id", claims.UserID)
 		c.Locals("student_id", claims.StudentID)
 		c.Locals("lecturer_id", claims.LecturerID)
 		c.Locals("nim", claims.NIM)
 		c.Locals("username", claims.Username)
 		c.Locals("role", claims.Role)
 
-		user_id := result.(string)
-		permission, err := repoPG.LoadPermissions(user_id)
-		if err != nil {
-			return fiber.ErrForbidden
+		userID := claims.UserID
+		if userID == "" {
+			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+				"error": "ID pengguna tidak valid",
+			})
 		}
 
-		c.Locals("permissions", permission)
+		permissions, err := repoPG.LoadPermissions(userID)
+		if err != nil {
+			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+				"error": "Gagal memuat izin pengguna",
+			})
+		}
+
+		c.Locals("permissions", permissions)
 
 		return c.Next()
 	}

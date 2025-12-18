@@ -13,11 +13,11 @@ func UserRoutes(app *fiber.App) {
 	v1 := api.Group("/v1")
 
 	users := v1.Group("/users", middleware.AuthRequired())
-	users.Get("/", middleware.Permission("user:manage", services.GetAllUserService))
+	users.Get("/", middleware.Permission("user:view", services.GetAllUserService))
 	users.Get("/:user_id", services.GetUsersByIdService)
-	users.Post("/", middleware.Permission("user:manage", services.StoreUserService))
-	users.Put("/:user_id", middleware.Permission("user:manage", services.UpdateUserService))
-	users.Put("/role/:user_id", middleware.Permission("user:manage", services.UpdateUserRoleService))
-	users.Delete("/:id", middleware.Permission("user:manage", services.DeleteUserService))
+	users.Post("/", middleware.Permission("user:create", services.StoreUserService))
+	users.Put("/:user_id", middleware.Permission("user:update", services.UpdateUserService))
+	users.Put("/role/:user_id", middleware.Permission("user:update", services.UpdateUserRoleService))
+	users.Delete("/:id", middleware.Permission("user:view", services.DeleteUserService))
 
 }
